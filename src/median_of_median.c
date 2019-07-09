@@ -13,50 +13,9 @@ void swap(int *p, int *q){
   *q = tmp;
 }
 
-void quick_sort(int A[], int n){
-    int i,j,pivot;
-    pivot = A[0];
-    for(i = j = 1; i < n; i++){
-        if(A[i] <= pivot){
-            swap(A + i, A + j);
-            j ++;
-        }
-    }
-    swap(A + 0 ,A + (j-1));
-    if(n == 0) return;
-    else return quick_sort(A + 0 ,j-1),quick_sort(A + j ,n-j);
-}
-
-int sublists[5];
-int medians[N/5];
-
-int median_of_median(int A[],int n){
-    int i, j, k;
-    if (n <= 5){
-        quick_sort(A,n);
-        return A[n/2];
-    }
-    else{
-        for (i = 0; i < n / 5; i++){
-            k = 5 * i;
-            for(j = 0; j < 5 && k < n; j++){
-                sublists[j] = A[k];
-                k += 1 ;
-            }
-            medians[i] = median_of_median(sublists,5);
-        }
-    quick_sort(medians,n/5);
-    return medians[n/10];
-    }
-}
-
 int quick_select(int A[], int n, int k){
     int h, i, j, pivot;
-    pivot = median_of_median(A,n);
-    for(i = 0 ;i <n ;i++){
-        if(A[i] == pivot) h = i;
-    }
-    swap(A+0,A+h);
+    pivot = A[0];
     for(i = j = 1; i < n; i++){
         if(A[i] <= pivot){
             swap(A+i, A+j);
@@ -68,6 +27,31 @@ int quick_select(int A[], int n, int k){
     else return quick_select(A+1, j-1, k);
 }
 
+int median_of_median(int A[],int n, int k){
+    int medians[(N+4)/5];
+    int i, pivot, j;
+    if(n <= 5){
+        return quick_select(A, n, k);
+    }
+    else{
+        for(i = 0; i < n/5 + 1; i++){
+            if(i < (n - n%5)/5){
+                medians[i] = quick_select(A + 5 * i, 5, 2);
+            }
+            else{
+                medians[i] = quick_select(A + 5 * i, n%5, n%5/2);
+            }
+        }
+        pivot = quick_select(medians, (n+4)/5, (n+4)/10);
+        if(A[0] != pivot){
+            for(int i = 1; i < n; i++)
+                if(A[i] == pivot){swap(A + 0, A + i);
+            }
+        }
+        return quick_select(A, n, k);
+    }
+}
+
 int main(){
     int i;
     A[0] = 0;
@@ -77,7 +61,7 @@ int main(){
     }
     
     for(i=0;i<N;i++){
-        if(quick_select(A, N, i) != i) printf("ERROR %d %d\n", i, quick_select(A, N, i));
+        if(median_of_median(A, N, i) != i) printf("ERROR %d %d\n", i, median_of_median(A, N ,i));
         //    if(quick_select(A, N, i) != i) printf("ERROR %d %d\n", i, quick_select(A, N, i));
     }
 }

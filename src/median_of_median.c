@@ -48,7 +48,16 @@ int median_of_median(int A[],int n, int k){
                 if(A[i] == pivot){swap(A + 0, A + i);
             }
         }
-        return quick_select(A, n, k);
+        
+        for(i = j = 1; i < n; i++){
+            if(A[i] <= pivot){
+                swap(A+i, A+j);
+                j++;
+            }
+        }
+        if(j == k+1) return pivot;
+        else if(j < k+1) return median_of_median(A+j, n-j, k-j);
+        else return median_of_median(A+1, j-1, k);
     }
 }
 
